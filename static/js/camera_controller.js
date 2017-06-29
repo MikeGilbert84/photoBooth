@@ -61,7 +61,7 @@ var photoController = (function PublicAPI(){
 
             var $countdowncontainer = $("#countdown");
             var $whichphoto = $('#whichphoto');
-
+            var $photoondiv = $("#photoondiv");
             console.log("reached the countdown on click");
 
             //gray out and disable the SNAPME button
@@ -70,7 +70,7 @@ var photoController = (function PublicAPI(){
 
             // append the empty innHTML H1 element
             $countdowncontainer.append("<h1 class='text-center Display-1 bgcountdown' style='padding:150px 0px 0px 0px'  id='photoCountdown'></h1>");
-
+            $photoondiv.append("<h1 id='whichphoto' class='Display-1' style='padding:25px 0px 0px 0px'></h1>")
             // start the loop (for 1 -4) {  innerText = i/4   function { 3 , 2, 1, POST sync snapcommand   }           }
 
 
