@@ -41,9 +41,9 @@ var photoController = (function PublicAPI(){
 , length: 28 // The length of each line
 , width: 14 // The line thickness
 , radius: 42 // The radius of the inner circle
-, scale: 1 // Scales overall size of the spinner
+, scale: 1.7 // Scales overall size of the spinner
 , corners: 1 // Corner roundness (0..1)
-, color: '#7FFFD4' // #rgb or #rrggbb or array of colors
+, color: '#ec5eaa' // #rgb or #rrggbb or array of colors
 , opacity: 0.25 // Opacity of the lines
 , rotate: 0 // The rotation offset
 , direction: 1 // 1: clockwise, -1: counterclockwise
@@ -59,15 +59,17 @@ var photoController = (function PublicAPI(){
 , position: 'absolute' // Element positioning
 }
 
-    var $countdown = $("#countdown");
-    console.log("reached the countdown on click");
+            var $countdowncontainer = $("#countdown");
+            var $whichphoto = $('#whichphoto');
+
+            console.log("reached the countdown on click");
 
             //gray out and disable the SNAPME button
             $(evt.target).prop('disabled', true);
 
 
             // append the empty innHTML H1 element
-            $countdown.append("<h1 class='text-center Display-1 bgcountdown' style='padding:150px 0px 0px 0px'  id='photoCountdown'></h1>");
+            $countdowncontainer.append("<h1 class='text-center Display-1 bgcountdown' style='padding:150px 0px 0px 0px'  id='photoCountdown'></h1>");
 
             // start the loop (for 1 -4) {  innerText = i/4   function { 3 , 2, 1, POST sync snapcommand   }           }
 
@@ -114,14 +116,13 @@ var photoController = (function PublicAPI(){
 
             if (numberOfPhotos === 5) {
                 // ajax cleanup.
-                console.log("got to the end")
-                // remove the countdown
-                // add the spinner
-                // on done remove spinner and enable the button prop disabled false
+                console.log("got to end")
+                // remove whichphoto we are on
 
+                gottotheend();
 
-            } else {
-                $('#whichphoto').html("We Are on Snap: "+numberOfPhotos+"/4 People!");
+            } else if (numberOfPhotos <= 4){
+                $whichphoto.html("We Are on Snap: "+numberOfPhotos+"/4 People!");
 
                 var phototimer = setInterval(function () {
                     photonumber(photocount, numberOfPhotos);
@@ -144,6 +145,30 @@ var photoController = (function PublicAPI(){
                 thecount = c - 1;
                 $('#photoCountdown').html(thecount);
                             }
+        }
+
+        function readyagain(){
+                    spinner.stop();
+                    $(evt.target).prop('disabled', false);
+
+                }
+
+        function gottotheend() {
+                $whichphoto.remove();
+                // remove the countdown
+                $('#photoCountdown').remove();
+                // add the spinner
+
+                var target = document.getElementById('countdown')
+                var spinner = new Spinner(opts).spin(target);
+                // send the ajax
+
+                $.ajax({url:'/cleanup'}, spinner).done(function(data){
+                    spinner.stop();
+                    $(evt.target).prop('disabled', false);
+                });
+                // on done: remove spinner and enable the button prop disabled false
+
         }
 
     startPhotoTimer();

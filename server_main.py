@@ -31,7 +31,7 @@ class SnapHandler(tornado.web.RequestHandler):
         searchstring = self.get_argument("search")
 
         print searchstring
-
+        print "SNAP"
        #### just a call to take a snap
         triggerCommand = ["--trigger-capture"]
         # gp(triggerCommand)
@@ -45,7 +45,8 @@ class CleanUpHandler(tornado.web.RequestHandler):
 
     def get(self):
 
-        pass
+        print "console hit"
+        time.sleep(20)
 
         ### copy down the files off the camera
 
@@ -56,7 +57,8 @@ class CleanUpHandler(tornado.web.RequestHandler):
         ### delete the photos off the camera
 
         ### return done  (Possibly a gif?)
-
+        self.write("Done")
+        self.finish()
 
 
 
@@ -65,7 +67,7 @@ def make_app():
     return tornado.web.Application([
         (r"/", MainHandler),
         (r"/snap", SnapHandler),
-        (r"cleanup", CleanUpHandler)],
+        (r"/cleanup", CleanUpHandler)],
         **settings)
 
 
