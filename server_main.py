@@ -48,8 +48,11 @@ class CleanUpHandler(tornado.web.RequestHandler):
         pass
 
         ### copy down the files off the camera
+
         ### make a datetime dir on the flash drive
+
         ### copy the files to the flash subdir
+
         ### delete the photos off the camera
 
         ### return done  (Possibly a gif?)
