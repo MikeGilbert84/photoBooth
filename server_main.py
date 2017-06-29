@@ -36,7 +36,7 @@ class SnapHandler(tornado.web.RequestHandler):
         triggerCommand = ["--trigger-capture"]
         # gp(triggerCommand)
 
-        time.sleep(5)
+
 
         self.write("snap:"+searchstring)
         self.finish()
@@ -46,12 +46,12 @@ class CleanUpHandler(tornado.web.RequestHandler):
     def get(self):
 
         pass
-        ### make a datetime dir on the flash drive
 
         ### copy down the files off the camera
-        ### delete the photos off the camera
-        ### resize photos? generate gif?
+        ### make a datetime dir on the flash drive
         ### copy the files to the flash subdir
+        ### delete the photos off the camera
+
         ### return done  (Possibly a gif?)
 
 
@@ -61,7 +61,8 @@ def make_app():
 
     return tornado.web.Application([
         (r"/", MainHandler),
-        (r"/snap", SnapHandler)],
+        (r"/snap", SnapHandler),
+        (r"cleanup", CleanUpHandler)],
         **settings)
 
 
@@ -69,7 +70,7 @@ def make_app():
 
 if __name__ == "__main__":
 
-
+    ### define and run a function that kills the gphoto process IF it exists
 
     app = make_app()
     port = int(os.environ.get("PORT", 4000))
