@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import random
 from tornado import gen
+import multiprocessing
 from sh import gphoto2 as gp
 
 
@@ -49,16 +50,19 @@ class CleanUpHandler(tornado.web.RequestHandler):
     def get(self):
 
         print "console hit"
-        # time.sleep(20)
+        # time.sleep(10)
 
         ### copy down the files off the camera
-        # getFilesCommand = ["--get-all-files"]
-        # gp(getFilesCommand)
+        getFilesCommand = ["--get-all-files"]
+        gp(getFilesCommand)
 
 
         ### make a datetime dir on the flash drive
         newSessionDirName = os.path.join(r'/media/pi/HP v125w/kikanina', datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') )
         os.makedirs(newSessionDirName)
+        newSessionPlayDirName = os.path.join(newSessionDirName, 'play')
+        os.makedirs(newSessionPlayDirName)
+
         ### copy the files to the flash subdir
         cwd = r'/media/pi/HP v125w/kikanina'
         currentDir = os.getcwd()
@@ -71,11 +75,28 @@ class CleanUpHandler(tornado.web.RequestHandler):
         ### copy them to the right Dir
         for snap in glob.iglob(os.path.join(currentDir, "*.JPG")):
             shutil.copy(snap, newSessionDirName)
+            shutil.copy(snap, newSessionPlayDirName)
         ### delete the photos off the camera
         clearphotos = subprocess.check_output(r"gphoto2 --folder='/store_00020001/DCIM/100CANON' -R --delete-all-files", shell=True)
-        # clearCommand = ["--folder=","/store_00020001/DCIM/100CANON" "-R", "--delete-all-files"]
-        # gp(clearCommand)
-        ### return done  (Possibly a gif?)
+        # # clearCommand = ["--folder=","/store_00020001/DCIM/100CANON" "-R", "--delete-all-files"]
+        # # gp(clearCommand)
+        # ### return done  (Possibly a gif?)
+        mogrify = subprocess.check_output('mogrify -resize 1280x960 *.JPG', cwd=newSessionPlayDirName, shell=True)
+        gifme = subprocess.check_output('convert -delay 110 -loop 0 *.JPG mygif.gif', cwd=newSessionPlayDirName, shell=True)
+
+        ### process gif on the side
+        # def target(where):
+        #     mogrify = subprocess.check_output('mogrify -resize 1280x960 *.JPG', cwd=where, shell=True)
+        #     gifme = subprocess.check_output('convert -delay 110 -loop 0 *.JPG mygif.gif', cwd= where, shell=True)
+        #
+        # mygiffile = os.path.join(newSessionDirName,'mygif.txt')
+        # p = multiprocessing.Process(target=target, args=(newSessionPlayDirName,))
+        # p.start()
+        # p.join()
+
+
+
+
         self.write("Done")
         self.finish()
 

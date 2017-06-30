@@ -161,10 +161,12 @@ var photoController = (function PublicAPI(){
 
                 var target = document.getElementById('countdown')
                 var spinner = new Spinner(opts).spin(target);
+
                 // send the ajax
 
                 $.ajax({url:'/cleanup'}, spinner).done(function(data){
                     spinner.stop();
+
                     $(evt.target).prop('disabled', false);
                 });
                 // on done: remove spinner and enable the button prop disabled false
