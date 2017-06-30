@@ -166,7 +166,11 @@ var photoController = (function PublicAPI(){
 
                 $.ajax({url:'/cleanup'}, spinner).done(function(data){
                     spinner.stop();
+                    console.log(data)
 
+                    // $countdowncontainer.append("<img id='megif' alt='Loading' title='Loading' />")
+                    // var gifpath = JSON.parse(data)
+                    // $('#megif').attr('src', gifpath.replace(/"/g, ''));
                     $(evt.target).prop('disabled', false);
                 });
                 // on done: remove spinner and enable the button prop disabled false

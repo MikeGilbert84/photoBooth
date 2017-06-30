@@ -96,8 +96,10 @@ class CleanUpHandler(tornado.web.RequestHandler):
 
 
 
-
-        self.write("Done")
+        # giflink = os.path.join('thegif','mygif.gif')
+        #
+        # self.write(json.dumps(giflink))
+        self.write(json.dumps("cleaned up"))
         self.finish()
 
 
