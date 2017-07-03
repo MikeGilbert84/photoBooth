@@ -69,8 +69,9 @@ var photoController = (function PublicAPI(){
 
 
             // append the empty innHTML H1 element
-            $countdowncontainer.append("<h1 class='text-center Display-1 bgcountdown' style='padding:150px 0px 0px 0px'  id='photoCountdown'></h1>");
-            $photoondiv.append("<h1 id='whichphoto' class='Display-1' style='padding:25px 0px 0px 0px'></h1>")
+            $('#sentsuccess').remove()
+            $countdowncontainer.append("<h1 class='text-center Display-1 bgcountdown' style='padding:30px 0px 0px 0px'  id='photoCountdown'></h1>");
+            $photoondiv.append("<h1 id='whichphoto' class='Display-1' style='padding:10px 0px 0px 0px'></h1>")
             // start the loop (for 1 -4) {  innerText = i/4   function { 3 , 2, 1, POST sync snapcommand   }           }
 
 
@@ -128,7 +129,7 @@ var photoController = (function PublicAPI(){
                     photonumber(photocount, numberOfPhotos);
                     photocount--;
                     if (photocount === 0) clearInterval(phototimer);
-                }, 1500);
+                }, 500);
 
 
             }
@@ -159,13 +160,48 @@ var photoController = (function PublicAPI(){
                 $('#photoCountdown').remove();
                 // add the spinner
 
-                var target = document.getElementById('countdown')
-                var spinner = new Spinner(opts).spin(target);
+                // var target = document.getElementById('countdown')
+                // var spinner = new Spinner(opts).spin(target);
 
+                $('#countdown').append("<div class='input-group'> <span id='atsign' class='input-group-addon' id='basic-addon1'>@</span><input id='email' type='text' class='form-control' placeholder='email' aria-describedby='basic-addon1'></div><button type='button' class='btn btn-primary btn-lg btn-block' rel='emailme'>EMAIL ME!</button>")
+
+
+                //on submit button clicked run this fun which makes the ajax request and passes the email back
                 // send the ajax
 
-                $.ajax({url:'/cleanup'}, spinner).done(function(data){
+                $("[rel='emailme']").on("click", submitemail);
+
+
+                // $.ajax({url:'/cleanup'}).done(function(data){
+                //     // spinner.stop();
+                //     console.log(data)
+                //
+                //     // $countdowncontainer.append("<img id='megif' alt='Loading' title='Loading' />")
+                //     // var gifpath = JSON.parse(data)
+                //     // $('#megif').attr('src', gifpath.replace(/"/g, ''));
+                //     $(evt.target).prop('disabled', false);
+                // });
+                // on done: remove spinner and enable the button prop disabled false
+
+        }
+
+        function submitemail() {
+            // get input email addreass
+            var emailaddress = $('#email').val()
+            console.log(emailaddress);
+            $('#email').remove()
+            $("[rel='emailme']").remove()
+            $('#atsign').remove()
+            ///onclick of submit button will trigger this function being called
+            // pass it the email address as data
+
+            var target = document.getElementById('countdown')
+             var spinner = new Spinner(opts).spin(target);
+            $.ajax({url:'/cleanup', data:{email: emailaddress}}, spinner).done(function(data){
                     spinner.stop();
+
+                    $('#photoondiv').append("<h1 id='sentsuccess' class='Display-1' style='padding:10px 0px 0px 0px'></h1>");
+                    $('#whichphoto').html(data);
                     console.log(data)
 
                     // $countdowncontainer.append("<img id='megif' alt='Loading' title='Loading' />")
@@ -173,7 +209,6 @@ var photoController = (function PublicAPI(){
                     // $('#megif').attr('src', gifpath.replace(/"/g, ''));
                     $(evt.target).prop('disabled', false);
                 });
-                // on done: remove spinner and enable the button prop disabled false
 
         }
 

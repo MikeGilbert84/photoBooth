@@ -7,10 +7,13 @@ import datetime
 import glob
 import shutil
 import subprocess
+import logging
 import random
 from tornado import gen
 import multiprocessing
+from email_mixin import EmailMixin
 from sh import gphoto2 as gp
+import moviepy.editor as mp
 
 
 PATH = os.path.join(os.path.dirname(__file__), "static")
@@ -47,11 +50,14 @@ class SnapHandler(tornado.web.RequestHandler):
 
 class CleanUpHandler(tornado.web.RequestHandler):
 
-    def get(self):
-
+    def get(self, *args, **kwargs):
+        print "*-----------------------"
         print "console hit"
-        # time.sleep(10)
 
+        # time.sleep(10)
+        emailaddress = self.get_argument("email")
+
+        print emailaddress
         ### copy down the files off the camera
         getFilesCommand = ["--get-all-files"]
         gp(getFilesCommand)
@@ -63,44 +69,57 @@ class CleanUpHandler(tornado.web.RequestHandler):
         newSessionPlayDirName = os.path.join(newSessionDirName, 'play')
         os.makedirs(newSessionPlayDirName)
 
-        ### copy the files to the flash subdir
-        cwd = r'/media/pi/HP v125w/kikanina'
         currentDir = os.getcwd()
         for snap in glob.iglob(os.path.join(currentDir, "*.JPG")):
             os.remove(snap)
+
+        copyemail = subprocess.Popen("echo %s > email.txt" % emailaddress, cwd=newSessionDirName, shell=True).wait()
+        ### copy the files to the flash subdir
+        cwd = r'/media/pi/HP v125w/kikanina'
+
         downloadCommand = ["--get-all-files"]
         # status = subprocess.Popen("gphoto2 --get-all-files", cwd=newSessionDirName,shell=True)
         time.sleep(2)
         gp(downloadCommand)
+        time.sleep(5)
         ### copy them to the right Dir
         for snap in glob.iglob(os.path.join(currentDir, "*.JPG")):
+            print newSessionDirName
+
             shutil.copy(snap, newSessionDirName)
-            shutil.copy(snap, newSessionPlayDirName)
+
         ### delete the photos off the camera
         clearphotos = subprocess.check_output(r"gphoto2 --folder='/store_00020001/DCIM/100CANON' -R --delete-all-files", shell=True)
-        # # clearCommand = ["--folder=","/store_00020001/DCIM/100CANON" "-R", "--delete-all-files"]
-        # # gp(clearCommand)
+
         # ### return done  (Possibly a gif?)
-        mogrify = subprocess.check_output('mogrify -resize 1280x960 *.JPG', cwd=newSessionPlayDirName, shell=True)
-        gifme = subprocess.check_output('convert -delay 110 -loop 0 *.JPG mygif.gif', cwd=newSessionPlayDirName, shell=True)
-
-        ### process gif on the side
-        # def target(where):
-        #     mogrify = subprocess.check_output('mogrify -resize 1280x960 *.JPG', cwd=where, shell=True)
-        #     gifme = subprocess.check_output('convert -delay 110 -loop 0 *.JPG mygif.gif', cwd= where, shell=True)
-        #
-        # mygiffile = os.path.join(newSessionDirName,'mygif.txt')
-        # p = multiprocessing.Process(target=target, args=(newSessionPlayDirName,))
-        # p.start()
-        # p.join()
+        mogrify = subprocess.check_output('mogrify -resize 1280x960 *.JPG', cwd=newSessionDirName, shell=True)
+        time.sleep(10)
+        gifme = subprocess.check_output('convert -delay 100 -loop 0 *.JPG mygif.gif', cwd=newSessionDirName, shell=True)
+        time.sleep(10)
 
 
+        giffile = os.path.join(newSessionDirName, 'mygif.gif')
+        gifmovfile = os.path.join(newSessionDirName, 'mygif.mp4')
 
-        # giflink = os.path.join('thegif','mygif.gif')
-        #
-        # self.write(json.dumps(giflink))
-        self.write(json.dumps("cleaned up"))
+        # clip = mp.VideoFileClip(giffile)
+        # clip.write_videofile(gifmovfile, codec='mpeg4')
+
+        sending_email = EmailMixin()
+        toaddrs = [emailaddress]
+        fromaddr = 'kika.nina.wedding@gmail.com'
+        subject = 'Kika and Nina Wedding Photo Booth July 1st 2017'
+        bodytext = None
+        html = "<html><body><h3>KIKA and NINA Wedding July 1st 2017</h3></body></html>"
+        attachmentFilePaths = [__file__]
+        the_file_22 = giffile
+
+        self.write(json.dumps("Email Sent!"))
+        sending_email._email_(subject, bodytext, [the_file_22], fromaddr, toaddrs, html=html)
+
+
         self.finish()
+
+
 
 
 
